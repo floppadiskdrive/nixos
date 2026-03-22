@@ -15,7 +15,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Use latest kernel.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  #boot.kernelPackages = pkgs.linuxPackages_latest;
 
   boot.initrd.luks.devices."luks-703ca976-49b0-47a1-9a57-f26bd20f6fe9".device = "/dev/disk/by-uuid/703ca976-49b0-47a1-9a57-f26bd20f6fe9";
   networking.hostName = "FlopPadT480"; # Define your hostname.
@@ -81,11 +81,15 @@
 
   services.displayManager.ly.enable = true;
   programs.niri.enable = true;
+  programs.steam.enable = true;
+  programs.gamemode.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    xwayland-satellite
+    polkit_gnome
   #  wget
   ];
 
@@ -112,17 +116,46 @@
   };
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  networking.firewall.allowedTCPPorts = [53317];
+  networking.firewall.allowedUDPPorts = [53317];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
+
+  security.polkit.enable = true;
+    systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    description = "polkit-gnome-authentication-agent-1";
+    wantedBy = [ "graphical-session.target" ];
+    wants = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
   # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
+  # Before changing this value read the documentationfor this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
 
-}
+  hardware.graphics = {
+	enable = true;
+  };
+  services.xserver.videoDrivers = ["nvidia"];
+
+  hardware.nvidia = {
+    open = false;
+    prime = {
+	sync.enable = true;
+
+	intelBusId = "PCI:0:2:0";
+	nvidiaBusId = "PCI:1:0:0";
+     };
+  };
+  services.thinkfan.enable = true;

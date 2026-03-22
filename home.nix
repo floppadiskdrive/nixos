@@ -62,9 +62,19 @@ in
     mangohud
     libreoffice-qt
     hunspell
+	hunspellDicts.sv_SE
+	hunspellDicts.en_GB-large
     brightnessctl
     usbutils
     geekbench
+    lshw
+	wev	
+	cheese
+	kdePackages.kamoso
+	webcamoid
+	kdePackages.kleopatra
+	tor-browser
+	localsend
 	];
   home.sessionVariables = {
     EDITOR = "nvim";
